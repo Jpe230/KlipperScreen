@@ -522,6 +522,7 @@ class KlipperScreen(Gtk.Window):
 
     def show_screensaver(self):
         logging.debug("Showing Screensaver")
+        os.system("sudo brightness -s 0")
         if self.screensaver is not None:
             self.close_screensaver()
         self.remove_keyboard()
@@ -553,6 +554,7 @@ class KlipperScreen(Gtk.Window):
         if self.screensaver is None:
             return False
         logging.debug("Closing Screensaver")
+        os.system("sudo brightness -s 1")
         self.remove(self.screensaver)
         self.screensaver = None
         self.add(self.base_panel.main_grid)
