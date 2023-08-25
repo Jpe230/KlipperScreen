@@ -1,19 +1,13 @@
 import logging
 import os
-
 import gi
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Pango
-
 from ks_includes.screen_panel import ScreenPanel
 
 
-def create_panel(*args):
-    return SplashScreenPanel(*args)
-
-
-class SplashScreenPanel(ScreenPanel):
+class Panel(ScreenPanel):
 
     def __init__(self, screen, title):
         super().__init__(screen, title)
@@ -97,9 +91,6 @@ class SplashScreenPanel(ScreenPanel):
 
     def activate(self):
         self.check_power_status()
-        self._screen.base_panel.show_macro_shortcut(False)
-        self._screen.base_panel.show_heaters(False)
-        self._screen.base_panel.show_estop(False)
 
     def check_power_status(self):
         if 'power' in self.labels:
@@ -125,7 +116,7 @@ class SplashScreenPanel(ScreenPanel):
                                               "machine.shutdown")
         else:
             logging.info("OS Shutdown")
-            os.system("systemctl poweroff")
+            os.system("systemctl poweroff -i")
 
     def restart_system(self, widget):
 
@@ -135,7 +126,7 @@ class SplashScreenPanel(ScreenPanel):
                                               "machine.reboot")
         else:
             logging.info("OS Reboot")
-            os.system("systemctl reboot")
+            os.system("systemctl reboot -i")
 
     def retry(self, widget):
         self.update_text((_("Connecting to %s") % self._screen.connecting_to_printer))

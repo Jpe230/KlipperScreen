@@ -1,16 +1,10 @@
 import logging
 import os
-
 import gi
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk, Pango, GLib
-
 from ks_includes.screen_panel import ScreenPanel
-
-
-def create_panel(*args):
-    return SystemPanel(*args)
 
 
 # Same as ALLOWED_SERVICES in moonraker
@@ -27,7 +21,7 @@ ALLOWED_SERVICES = (
 )
 
 
-class SystemPanel(ScreenPanel):
+class Panel(ScreenPanel):
     def __init__(self, screen, title):
         super().__init__(screen, title)
         self.refresh = None
@@ -65,7 +59,7 @@ class SystemPanel(ScreenPanel):
             items = sorted(list(vi))
             i = 0
             for prog in items:
-                self.labels[prog] = Gtk.Label("")
+                self.labels[prog] = Gtk.Label()
                 self.labels[prog].set_hexpand(True)
                 self.labels[prog].set_halign(Gtk.Align.START)
 
@@ -340,9 +334,9 @@ class SystemPanel(ScreenPanel):
         self._gtk.remove_dialog(dialog)
         if response_id == Gtk.ResponseType.OK:
             if method == "reboot":
-                os.system("systemctl reboot")
+                os.system("systemctl reboot -i")
             else:
-                os.system("systemctl poweroff")
+                os.system("systemctl poweroff -i")
         elif response_id == Gtk.ResponseType.APPLY:
             if method == "reboot":
                 self._screen._ws.send_method("machine.reboot")

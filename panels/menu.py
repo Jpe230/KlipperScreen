@@ -1,21 +1,14 @@
 import logging
-
-import gi
-
 import json
+import gi
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 from jinja2 import Template
-
 from ks_includes.screen_panel import ScreenPanel
 
 
-def create_panel(*args, **kwargs):
-    return MenuPanel(*args, **kwargs)
-
-
-class MenuPanel(ScreenPanel):
+class Panel(ScreenPanel):
     j2_data = None
 
     def __init__(self, screen, title, items=None):
@@ -74,6 +67,7 @@ class MenuPanel(ScreenPanel):
         for i in range(len(self.items)):
             key = list(self.items[i])[0]
             item = self.items[i][key]
+            scale = 1.1 if 12 < len(self.items) <= 16 else None  # hack to fit a 4th row
 
             printer = self._printer.get_printer_status_data()
 
@@ -81,11 +75,11 @@ class MenuPanel(ScreenPanel):
             icon = self._screen.env.from_string(item['icon']).render(printer) if item['icon'] else None
             style = self._screen.env.from_string(item['style']).render(printer) if item['style'] else None
 
-            b = self._gtk.Button(icon, name, style or f"color{i % 4 + 1}")
+            b = self._gtk.Button(icon, name, style or f"color{i % 4 + 1}", scale=scale)
 
             if item['panel'] is not None:
                 panel = self._screen.env.from_string(item['panel']).render(printer)
-                b.connect("clicked", self.menu_item_clicked, panel, item)
+                b.connect("clicked", self.menu_item_clicked, item)
             elif item['method'] is not None:
                 params = {}
 
@@ -109,8 +103,6 @@ class MenuPanel(ScreenPanel):
         if enable == "{{ moonraker_connected }}":
             logging.info(f"moonraker connected {self._screen._ws.connected}")
             return self._screen._ws.connected
-        elif enable == "{{ camera_configured }}":
-            return self.ks_printer_cfg and self.ks_printer_cfg.get("camera_url", None) is not None
         self.j2_data = self._printer.get_printer_status_data()
         try:
             j2_temp = Template(enable, autoescape=True)
