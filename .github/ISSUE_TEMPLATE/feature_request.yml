@@ -1,6 +1,7 @@
 name: Feature request
 description: Suggest an idea for this project
 title: "[FR] <title>"
+label: 'enhancement'
 body:
   - type: markdown
     attributes:
@@ -8,6 +9,8 @@ body:
         ## Thank you for choosing KlipperScreen
 
         This form is for feature requests of KlipperScreen
+
+        Requesting a feature does not mean it will be worked on, it's taken as a suggestion.
 
         #### This is an Open Source project developed voluntarily, there are no Warranties, or ETA.
         [License](https://github.com/KlipperScreen/KlipperScreen/blob/master/LICENSE)

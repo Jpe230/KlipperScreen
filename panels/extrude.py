@@ -13,7 +13,7 @@ class Panel(ScreenPanel):
     def __init__(self, screen, title):
         super().__init__(screen, title)
         self.current_extruder = self._printer.get_stat("toolhead", "extruder")
-        macros = self._printer.get_gcode_macros()
+        macros = self._printer.get_config_section_list("gcode_macro ")
         self.load_filament = any("LOAD_FILAMENT" in macro.upper() for macro in macros)
         self.unload_filament = any("UNLOAD_FILAMENT" in macro.upper() for macro in macros)
 
@@ -59,10 +59,9 @@ class Panel(ScreenPanel):
         for extruder in self._printer.get_tools():
             if self._printer.extrudercount > 1:
                 self.labels[extruder] = self._gtk.Button(f"extruder-{i}", f"T{self._printer.get_tool_number(extruder)}")
+                self.labels[extruder].connect("clicked", self.change_extruder, extruder)
             else:
                 self.labels[extruder] = self._gtk.Button("extruder", "")
-            if len(self._printer.get_tools()) > 1:
-                self.labels[extruder].connect("clicked", self.change_extruder, extruder)
             if extruder == self.current_extruder:
                 self.labels[extruder].get_style_context().add_class("button_active")
             if i < limit:
@@ -118,7 +117,7 @@ class Panel(ScreenPanel):
 
         filament_sensors = self._printer.get_filament_sensors()
         sensors = Gtk.Grid()
-        sensors.set_size_request(self._gtk.content_width, -1)
+        sensors.set_size_request(self._gtk.content_width - 30, -1)
         if len(filament_sensors) > 0:
             sensors.set_column_spacing(5)
             sensors.set_row_spacing(5)
@@ -187,13 +186,14 @@ class Panel(ScreenPanel):
         if action != "notify_status_update":
             return
         for x in self._printer.get_tools():
-            self.update_temp(
-                x,
-                self._printer.get_dev_stat(x, "temperature"),
-                self._printer.get_dev_stat(x, "target"),
-                self._printer.get_dev_stat(x, "power"),
-                lines=2,
-            )
+            if x in data:
+                self.update_temp(
+                    x,
+                    self._printer.get_dev_stat(x, "temperature"),
+                    self._printer.get_dev_stat(x, "target"),
+                    self._printer.get_dev_stat(x, "power"),
+                    lines=2,
+                )
 
         if ("toolhead" in data and "extruder" in data["toolhead"] and
                 data["toolhead"]["extruder"] != self.current_extruder):

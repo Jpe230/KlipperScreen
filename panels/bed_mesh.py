@@ -1,3 +1,4 @@
+import contextlib
 import logging
 import gi
 
@@ -51,7 +52,7 @@ class Panel(ScreenPanel):
         if self._screen.vertical_mode:
             grid.attach(self.labels['map'], 0, 2, 2, 1)
             grid.attach(scroll, 0, 3, 2, 1)
-            self.labels['map'].set_size_request(self._gtk.content_width, self._gtk.content_height * .4)
+            self.labels['map'].set_size_request(self._gtk.content_width - 30, self._gtk.content_height * .4)
         else:
             grid.attach(self.labels['map'], 0, 2, 1, 1)
             grid.attach(scroll, 1, 2, 1, 1)
@@ -60,8 +61,8 @@ class Panel(ScreenPanel):
 
     def activate(self):
         self.load_meshes()
-        if not self._printer.get_stat('bed_mesh', 'profile_name') and 'default' in self.profiles:
-            self.send_load_mesh(None, 'default')  # this is not the default behaviour of klipper anymore
+        with contextlib.suppress(KeyError):
+            self.activate_mesh(self._printer.get_stat("bed_mesh", "profile_name"))
 
     def activate_mesh(self, profile):
         if self.active_mesh is not None:
